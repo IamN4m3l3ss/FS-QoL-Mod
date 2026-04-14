@@ -1,0 +1,15 @@
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.csproj.AssemblyReference.cache
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.GeneratedMSBuildEditorConfig.editorconfig
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.AssemblyInfoInputs.cache
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.AssemblyInfo.cs
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.csproj.CoreCompileInputs.cache
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/FS_FovChanger.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/0Harmony.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/Assembly-CSharp.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/MelonLoader.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/UnityEngine.CoreModule.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/UnityEngine.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/UnityEngine.InputLegacyModule.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/bin/Debug/net48/UnityEngine.InputModule.dll
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovCh.7905C100.Up2Date
+/home/nameless/RiderProjects/FS_Mod/FS_FovChanger/obj/Debug/net48/FS_FovChanger.dll

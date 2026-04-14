@@ -1,0 +1,8 @@
+is_global = true
+build_property.RootNamespace = FS_FovChanger
+build_property.ProjectDir = /home/nameless/RiderProjects/FS_Mod/FS_QoL_Mod/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 

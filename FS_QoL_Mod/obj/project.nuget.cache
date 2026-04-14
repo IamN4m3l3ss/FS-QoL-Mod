@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "usWiiPos+Xg=",
+  "success": true,
+  "projectFilePath": "/home/nameless/RiderProjects/FS_Mod/FS_QoL_Mod/FS_QoL_Mod.csproj",
+  "expectedPackageFiles": [
+    "/home/nameless/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/home/nameless/.nuget/packages/microsoft.netframework.referenceassemblies.net48/1.0.3/microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
