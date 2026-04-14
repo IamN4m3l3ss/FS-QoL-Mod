@@ -3,7 +3,7 @@ using UnityEngine;
 using FS_FovChanger.UI;        
 using System.Collections; // Required for Coroutines
 
-[assembly: MelonInfo(typeof(FS_FovChanger.Main), "FS QoL Mod", "1.0.0", "IamN4m3l3ss")]
+[assembly: MelonInfo(typeof(FS_FovChanger.Main), "FS QoL Mod", "1.1.0", "IamN4m3l3ss")]
 
 namespace FS_FovChanger 
 {
