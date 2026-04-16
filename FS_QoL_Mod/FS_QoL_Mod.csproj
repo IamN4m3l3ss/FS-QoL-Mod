@@ -41,15 +41,22 @@
         <Reference Include="UnityEngine.TextRenderingModule">
           <HintPath>..\Dependencies\UnityEngine.TextRenderingModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.UI">
+          <HintPath>..\Dependencies\UnityEngine.UI.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Properties\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+    </ItemGroup>
+
     <PropertyGroup>
         <PostBuildEvent>
-            cp "/home/nameless/RiderProjects/FS_Mod/FS_QoL_Mod/bin/Debug/net48/FS_QoL_Mod.dll" "/home/nameless/Games/FS-V0.84/Mods/"
+            cp "/home/nameless/RiderProjects/FS_Mod/FS_QoL_Mod/bin/Debug/net48/FS_QoL_Mod.dll" "/home/nameless/Games/FriendlyShooter/Mods/"
         </PostBuildEvent>
     </PropertyGroup>
 

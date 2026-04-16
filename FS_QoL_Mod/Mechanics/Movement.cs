@@ -6,38 +6,53 @@ namespace FS_FovChanger.Mechanics
     [HarmonyPatch(typeof(FPSController), "Update")]
     public class AdvancedMovementPatch
     {
-        public static bool canDoubleJump = true;
-        public static bool isGrounded = true;
-        public static float wallRunTimer = 0f;
-        public static readonly float MaxWallRunTime = 1.5f;
-        public static float targetTilt = 0f;
-
-        public static int WallRunsRemaining = 2;
-        public static bool IsWallRunning => _isWallRunning; // Public property for _isWallRunning
+        public static int _jumpsPerformedInAir;
+        public static bool isGrounded;
+        public static float wallRunTimer;
+        public static readonly float MaxWallRunTime = 2.0f;
+        public static float targetTilt;
+        public static int WallRunsRemaining;
+        public static bool IsWallRunning => _isWallRunning;
+        
         private static bool _isWallRunning;
         private static bool _wasWallRunningLastFrame;
         private static float _airTime;
+        private static float _wallrunCooldown;
+        private static int _lastFrameJumped;
 
         [HarmonyPostfix]
         public static void Postfix(FPSController __instance)
         {
             if (__instance == null) return;
             var traverse = Traverse.Create(__instance);
+
+            if (Config.DisableStamina.Value)
+            {
+                traverse.Field("currentStamina").SetValue(__instance.maxStamina);
+            }
+
+            if (Config.EnableDoubleJump.Value)
+            {
+                traverse.Field("wallJumpCooldownRemaining").SetValue(0.1f);
+            }
+
             var charController = __instance.GetComponent<CharacterController>();
             if (charController == null) return;
 
             Vector3 currentMoveDir = traverse.Field("moveDirection").GetValue<Vector3>();
             isGrounded = charController.isGrounded;
 
+            if (_wallrunCooldown > 0) _wallrunCooldown -= Time.deltaTime;
+
             if (isGrounded)
             {
-                canDoubleJump = true;
+                _jumpsPerformedInAir = 0;
+                WallRunsRemaining = Config.WallrunCharges.Value;
                 _isWallRunning = false;
                 _wasWallRunningLastFrame = false;
                 _airTime = 0f;
                 targetTilt = 0f;
                 wallRunTimer = MaxWallRunTime;
-                WallRunsRemaining = 2;
             }
             else
             {
@@ -53,44 +68,36 @@ namespace FS_FovChanger.Mechanics
                 bool isValidWallRight = wallRight && Mathf.Abs(hitRight.normal.y) < 0.1f && hitRight.collider.gameObject.tag != "Tree";
 
                 bool jumpInput = Input.GetButtonDown("Jump");
+                bool jumpConsumed = false;
 
-                if (Config.EnableWallRun.Value && (isValidWallLeft || isValidWallRight) && Input.GetKey(KeyCode.W) && wallRunTimer > 0f && WallRunsRemaining > 0)
+                if (Config.EnableWallRun.Value && (isValidWallLeft || isValidWallRight) && Input.GetKey(KeyCode.W) && wallRunTimer > 0f && WallRunsRemaining > 0 && _wallrunCooldown <= 0)
                 {
                     _isWallRunning = true;
-                    canDoubleJump = true; // Reset double jump when wallrunning
+                    _jumpsPerformedInAir = 0;
                     currentMoveDir.y = -0.5f;
                     targetTilt = isValidWallLeft ? -15f : 15f;
                     wallRunTimer -= Time.deltaTime;
 
-                    // Consume stamina while wallrunning
-                    float currentStam = traverse.Field("currentStamina").GetValue<float>();
-                    float runStaminaCost = __instance.runStaminaCost; // Access runStaminaCost from instance
-                    currentStam -= runStaminaCost * Time.deltaTime;
-                    if (currentStam <= 0.0f)
+                    if (!Config.DisableStamina.Value)
                     {
-                        currentStam = 0.0f;
-                        // Optionally, stop wallrunning if stamina runs out
-                        // _isWallRunning = false; 
+                        float currentStam = traverse.Field("currentStamina").GetValue<float>();
+                        currentStam -= __instance.runStaminaCost * Time.deltaTime;
+                        if (currentStam <= 0.0f) {
+                            currentStam = 0.0f;
+                            _isWallRunning = false; 
+                        }
+                        traverse.Field("currentStamina").SetValue(currentStam);
                     }
-                    traverse.Field("currentStamina").SetValue(currentStam);
-
-
-                    traverse.Field("wallJumpCooldownRemaining").SetValue(0.1f);
 
                     if (jumpInput)
                     {
                         WallRunsRemaining--;
                         wallRunTimer = MaxWallRunTime;
-                        
+                        _wallrunCooldown = 0.5f;
                         currentMoveDir.y = __instance.jumpPower;
                         Vector3 pushDir = isValidWallLeft ? camTransform.right : -camTransform.right;
-                        currentMoveDir += pushDir * 7f;
-
-                        traverse.Field("wallJumpCooldownRemaining").SetValue(__instance.wallJumpCooldown);
-                        
-                        canDoubleJump = false;
-                        jumpInput = false;
-
+                        currentMoveDir += pushDir * 10f;
+                        jumpConsumed = true;
                         PlayJumpSound(__instance);
                     }
                 }
@@ -105,17 +112,21 @@ namespace FS_FovChanger.Mechanics
                     WallRunsRemaining--;
                     wallRunTimer = MaxWallRunTime;
                 }
-
                 _wasWallRunningLastFrame = _isWallRunning;
 
-                if (Config.EnableDoubleJump.Value && jumpInput && canDoubleJump && !_isWallRunning && _airTime > 0.2f)
+                if (Config.EnableDoubleJump.Value && jumpInput && !jumpConsumed && _jumpsPerformedInAir < Config.DoubleJumpCharges.Value && !_isWallRunning && _airTime > 0.2f)
                 {
-                    float currentStam = traverse.Field("currentStamina").GetValue<float>();
-                    if (currentStam >= __instance.jumpStaminaCost)
+                    if (Time.frameCount == _lastFrameJumped) return;
+                    
+                    if (Config.DisableStamina.Value || traverse.Field("currentStamina").GetValue<float>() >= __instance.jumpStaminaCost)
                     {
+                        _lastFrameJumped = Time.frameCount;
                         currentMoveDir.y = __instance.jumpPower;
-                        traverse.Field("currentStamina").SetValue(currentStam - __instance.jumpStaminaCost);
-                        canDoubleJump = false;
+                        if (!Config.DisableStamina.Value)
+                        {
+                            traverse.Field("currentStamina").SetValue(traverse.Field("currentStamina").GetValue<float>() - __instance.jumpStaminaCost);
+                        }
+                        _jumpsPerformedInAir++;
                         PlayJumpSound(__instance);
                     }
                 }
