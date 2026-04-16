@@ -41,6 +41,7 @@ namespace FS_FovChanger
         {
             yield return new WaitForSeconds(1f);
             ModGUI.ApplyVisibility();
+            CustomCrosshair.OnSceneLoad();
         }
 
         public override void OnGUI()

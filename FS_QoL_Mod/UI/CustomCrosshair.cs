@@ -8,17 +8,23 @@ namespace FS_FovChanger.UI
         private static GameObject _crosshairRoot;
         private static Image[] _lines = new Image[4];
         private static Image _defaultCrosshairImage;
+        private static FPSController _lastPlayer;
 
         private static void Initialize()
         {
-            var mainCamera = Camera.main;
-            if (mainCamera == null) return;
+            if (Hud.Player == null) return;
 
-            var canvasTransform = mainCamera.transform.Find("Canvas");
-            if (canvasTransform == null) return;
+            // Find the correct canvas/UI transform, trying "PlayerUI" first, then "Canvas".
+            var uiRootTransform = Hud.Player.transform.Find("Main Camera/PlayerUI");
+            if (uiRootTransform == null)
+            {
+                uiRootTransform = Hud.Player.transform.Find("Main Camera/Canvas");
+            }
+            
+            if (uiRootTransform == null) return; // Abort if no UI root is found
 
             _crosshairRoot = new GameObject("CustomCrosshairRoot");
-            _crosshairRoot.transform.SetParent(canvasTransform, false);
+            _crosshairRoot.transform.SetParent(uiRootTransform, false);
             var rootRect = _crosshairRoot.AddComponent<RectTransform>();
             rootRect.anchorMin = new Vector2(0.5f, 0.5f);
             rootRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -34,18 +40,43 @@ namespace FS_FovChanger.UI
             }
         }
 
+        public static void OnSceneLoad()
+        {
+            _defaultCrosshairImage = null;
+            _lastPlayer = null;
+        }
+
         public static void Update()
         {
+            if (Hud.Player == null)
+            {
+                if (_crosshairRoot != null && _crosshairRoot.activeSelf)
+                {
+                    _crosshairRoot.SetActive(false);
+                }
+                return;
+            }
+
+            if (_lastPlayer != Hud.Player)
+            {
+                _lastPlayer = Hud.Player;
+                _defaultCrosshairImage = null;
+                // Also reset the crosshair root to force re-initialization for the new player model
+                _crosshairRoot = null; 
+            }
+            
             if (_defaultCrosshairImage == null)
             {
-                // Use the public Player object from the Hud class
-                if (Hud.Player != null)
+                // Try to find the crosshair panel using both known paths.
+                var panelTransform = Hud.Player.transform.Find("Main Camera/PlayerUI/Panel (4)");
+                if (panelTransform == null)
                 {
-                    var panelTransform = Hud.Player.transform.Find("Main Camera/Canvas/Panel (4)");
-                    if (panelTransform != null)
-                    {
-                        _defaultCrosshairImage = panelTransform.GetComponent<Image>();
-                    }
+                    panelTransform = Hud.Player.transform.Find("Main Camera/Canvas/Panel (4)");
+                }
+
+                if (panelTransform != null)
+                {
+                    _defaultCrosshairImage = panelTransform.GetComponent<Image>();
                 }
             }
 
@@ -66,7 +97,10 @@ namespace FS_FovChanger.UI
 
                 if (ColorUtility.TryParseHtmlString(Config.CrosshairColor.Value, out var color))
                 {
-                    foreach (var line in _lines) line.color = color;
+                    foreach (var line in _lines)
+                    {
+                        if (line != null) line.color = color;
+                    }
                 }
 
                 bool[] barEnabled = {
