@@ -7,12 +7,18 @@ namespace FS_FovChanger.UI
     public static class Hud
     {
         private static Texture2D _barTex;
+        private static Texture2D _speedBgTex;
         
         public static FPSController Player;
         private static DualWieldGun _dualGun;
         private static ProjectileGun _singleGun;
         
         private static float _nextSearchTime;
+        private static GUIStyle _speedometerStyle;
+        private static GUIStyle _speedLabelStyle;
+        private static Vector3 _lastPosition;
+        private static float _currentSpeed;
+        private static bool _wasBhopEnabled;
 
         public static void Draw()
         {
@@ -22,9 +28,32 @@ namespace FS_FovChanger.UI
             {
                 Player = Object.FindAnyObjectByType<FPSController>();
                 if (Player == null) return;
+                _lastPosition = Player.transform.position;
             }
 
             if (_barTex == null) _barTex = MakeTex(2, 2, Color.white);
+            if (_speedBgTex == null) _speedBgTex = MakeTex(2, 2, new Color(0.12f, 0.12f, 0.16f, 0.4f)); // Catppuccin Base (transparent)
+
+            if (_speedometerStyle == null)
+            {
+                _speedometerStyle = new GUIStyle(GUI.skin.label)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 24,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = new Color(0.80f, 0.82f, 0.88f, 1f) } // Catppuccin Text
+                };
+            }
+            if (_speedLabelStyle == null)
+            {
+                _speedLabelStyle = new GUIStyle(GUI.skin.label)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 11,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = new Color(0.80f, 0.82f, 0.88f, 1.0f) }
+                };
+            }
 
             if (Time.time > _nextSearchTime)
             {
@@ -50,6 +79,20 @@ namespace FS_FovChanger.UI
                     }
                 }
             }
+            
+            // Reset position tracking when toggling bhop so we don't get wild numbers
+            if (Config.EnableBhop.Value != _wasBhopEnabled)
+            {
+                _lastPosition = Player.transform.position;
+                _currentSpeed = 0f;
+                _wasBhopEnabled = Config.EnableBhop.Value;
+            }
+
+            CalculateSpeedometer();
+            if (Config.ShowSpeedometer.Value)
+            {
+                DrawSpeedometerUI();
+            }
         }
         
         private static void RefreshCache()
@@ -58,6 +101,52 @@ namespace FS_FovChanger.UI
             _singleGun = Object.FindAnyObjectByType<ProjectileGun>();
         }
         
+        private static void CalculateSpeedometer()
+        {
+            if (Player == null) return;
+
+            Vector3 currentPosition = Player.transform.position;
+            
+            if (Time.deltaTime > 0)
+            {
+                Vector3 delta = currentPosition - _lastPosition;
+                delta.y = 0; // Horizontal speed only
+                float speed = delta.magnitude / Time.deltaTime;
+                
+                // Prevent negative or absurdly high numbers on lag spikes/teleports
+                if (speed < 0f || speed > 1000f) speed = 0f;
+                
+                _currentSpeed = Mathf.Lerp(_currentSpeed, speed, Time.deltaTime * 8f);
+            }
+            _lastPosition = currentPosition;
+        }
+
+        private static void DrawSpeedometerUI()
+        {
+            float centerX = Screen.width / 2f;
+            float yPos = 40f; // Position it near the top
+
+            float width = 100f;
+            float height = 40f;
+            Rect bgRect = new Rect(centerX - (width / 2f), yPos, width, height);
+            
+            // Draw background
+            GUI.DrawTexture(bgRect, _speedBgTex);
+            
+            int displaySpeed = Mathf.RoundToInt(_currentSpeed);
+            
+            // Change color based on speed milestones
+            Color speedColor = new Color(0.80f, 0.82f, 0.88f, 1f); // Default Text
+            if (displaySpeed > 10) speedColor = new Color(0.95f, 0.82f, 0.61f, 1f); // Yellow
+            if (displaySpeed > 20) speedColor = new Color(0.95f, 0.55f, 0.58f, 1f); // Red
+            
+            GUI.color = speedColor;
+            GUI.Label(new Rect(centerX - (width / 2f), yPos, width, 25f), displaySpeed.ToString(), _speedometerStyle);
+            GUI.color = Color.white;
+            
+            GUI.Label(new Rect(centerX - (width / 2f), yPos + 22f, width, 15f), "UNITS / SEC", _speedLabelStyle);
+        }
+
         private static void DrawHorizontalCooldowns(FPSController player)
         {
             var tr = Traverse.Create(player);

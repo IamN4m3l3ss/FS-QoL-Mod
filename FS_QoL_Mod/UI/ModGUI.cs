@@ -152,6 +152,9 @@ namespace FS_FovChanger.UI
                 var r3 = GUILayoutUtility.GetRect(new GUIContent(" Movement Cooldowns"), _toggleStyle);
                 Config.ShowMovementBars.Value = CustomToggle(r3, Config.ShowMovementBars.Value, " Movement Cooldowns");
                 
+                var r4 = GUILayoutUtility.GetRect(new GUIContent(" Speedometer"), _toggleStyle);
+                Config.ShowSpeedometer.Value = CustomToggle(r4, Config.ShowSpeedometer.Value, " Speedometer");
+                
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();
             }
@@ -159,6 +162,18 @@ namespace FS_FovChanger.UI
 
         private static void DrawMovementTab()
         {
+            var r0 = GUILayoutUtility.GetRect(new GUIContent(" Enable Bunnyhopping / Air strafing"), _toggleStyle);
+            bool newBhop = CustomToggle(r0, Config.EnableBhop.Value, " Enable Bunnyhopping / Air strafing");
+            if (newBhop != Config.EnableBhop.Value)
+            {
+                Config.EnableBhop.Value = newBhop;
+                if (newBhop)
+                {
+                    Config.EnableWallRun.Value = false;
+                    Config.DisableStamina.Value = true;
+                }
+            }
+            
             var r1 = GUILayoutUtility.GetRect(new GUIContent(" Enable Double Jump"), _toggleStyle);
             Config.EnableDoubleJump.Value = CustomToggle(r1, Config.EnableDoubleJump.Value, " Enable Double Jump");
             
@@ -171,7 +186,12 @@ namespace FS_FovChanger.UI
             }
 
             var r3 = GUILayoutUtility.GetRect(new GUIContent(" Enable Wall Running"), _toggleStyle);
-            Config.EnableWallRun.Value = CustomToggle(r3, Config.EnableWallRun.Value, " Enable Wall Running");
+            bool newWallrun = CustomToggle(r3, Config.EnableWallRun.Value, " Enable Wall Running");
+            if (newWallrun != Config.EnableWallRun.Value)
+            {
+                Config.EnableWallRun.Value = newWallrun;
+                if (newWallrun && Config.EnableBhop.Value) Config.EnableBhop.Value = false;
+            }
             
             if (Config.EnableWallRun.Value) {
                 GUILayout.BeginHorizontal();

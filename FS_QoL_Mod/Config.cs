@@ -14,8 +14,10 @@ namespace FS_FovChanger
         // HUD
         public static MelonPreferences_Entry<bool> ShowAmmoCircles;
         public static MelonPreferences_Entry<bool> ShowMovementBars;
+        public static MelonPreferences_Entry<bool> ShowSpeedometer;
         
         // Mechanics
+        public static MelonPreferences_Entry<bool> EnableBhop;
         public static MelonPreferences_Entry<bool> EnableDoubleJump;
         public static MelonPreferences_Entry<int> DoubleJumpCharges;
         public static MelonPreferences_Entry<bool> EnableWallRun;
@@ -46,7 +48,9 @@ namespace FS_FovChanger
             
             ShowAmmoCircles = ModCategory.CreateEntry("ShowAmmoCircles", true);
             ShowMovementBars = ModCategory.CreateEntry("ShowMovementBars", true);
+            ShowSpeedometer = ModCategory.CreateEntry("ShowSpeedometer", true);
             
+            EnableBhop = ModCategory.CreateEntry("EnableBhop", false);
             EnableDoubleJump = ModCategory.CreateEntry("EnableDoubleJump", false);
             DoubleJumpCharges = ModCategory.CreateEntry("DoubleJumpCharges", 1);
             EnableWallRun = ModCategory.CreateEntry("EnableWallRun", false);
