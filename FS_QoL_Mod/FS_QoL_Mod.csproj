@@ -50,14 +50,4 @@
       <Folder Include="Properties\" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-    </ItemGroup>
-
-    <PropertyGroup>
-        <PostBuildEvent>
-            cp "/home/nameless/RiderProjects/FS_Mod/FS_QoL_Mod/bin/Debug/net48/FS_QoL_Mod.dll" "/home/nameless/Games/FriendlyShooter/Mods/"
-        </PostBuildEvent>
-    </PropertyGroup>
-
 </Project>
